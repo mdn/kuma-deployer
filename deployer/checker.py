@@ -49,7 +49,10 @@ def check_builds(repo_location, config):
     print("")
 
     # Check Kuma on Jenkins
-    url = "https://ci.us-west-2.mdn.mozit.cloud/blue/organizations/jenkins/kuma/activity/?branch=master"
+    url = (
+        "https://ci.us-west-2.mdn.mozit.cloud"
+        "/blue/organizations/jenkins/kuma/activity/?branch=master"
+    )
     info("Jenkins is both auth and VPN protected. Visit this URL and ...")
     info(f"Look for:  {short_sha}   on:")
     info(url)
@@ -59,7 +62,10 @@ def check_builds(repo_location, config):
     success("Great!\n")
 
     # Check Kuma on Jenkins
-    url = "https://ci.us-west-2.mdn.mozit.cloud/blue/organizations/jenkins/kumascript/activity/?branch=master"
+    url = (
+        "https://ci.us-west-2.mdn.mozit.cloud"
+        "/blue/organizations/jenkins/kumascript/activity/?branch=master"
+    )
     info("Jenkins is both auth and VPN protected. Visit this URL and ...")
     info(f"Look for:  {ks_short_sha}   on:")
     info(url)

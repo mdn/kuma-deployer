@@ -27,11 +27,11 @@ copy and paste it into your `.env` file or use `export`. E.g.
     GITHUB_ACCESS_TOKEN=a36f6736...
 
     pip install kuma-deployer
-    kuma-deploy path/to/kumarepo  # for example
+    kuma-deployer --help
 
 If you don't use a `.env` file you can use:
 
-    GITHUB_ACCESS_TOKEN=a36f6736... kuma-deploy path/to/kumarepo
+    GITHUB_ACCESS_TOKEN=a36f6736... kuma-deployer --help
 
 ## Goal
 
@@ -44,8 +44,8 @@ Clone this repo then run:
 
     pip install -e ".[dev]"
 
-That should have installed the CLI `kuma-deploy`
+That should have installed the CLI `kuma-deployer`
 
-    kuma-deploy --help
+    kuma-deployer --help
 
 If you wanna make a PR, make sure it's formatted with `black` and passes `flake8`.
