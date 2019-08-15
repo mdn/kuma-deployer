@@ -25,7 +25,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=["GitPython", "click", "PyGithub", "python-decouple"],
+    install_requires=["GitPython", "click", "PyGithub", "python-decouple", "requests"],
     extras_require={"dev": dev_requirements},
     entry_points="""
         [console_scripts]

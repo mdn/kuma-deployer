@@ -1,32 +1,14 @@
 import datetime
 
 import git
-from decouple import config
 from github import Github, GithubException
 
+from .exceptions import SubmoduleFindingError, DirtyRepoError, MasterBranchError
 from .utils import warning, info, success
-
-GITHUB_ACCESS_TOKEN = config("GITHUB_ACCESS_TOKEN")
-KUMA_REPO_NAME = config("DEPLOYER_KUMA_REPO_NAME", "mozilla/kuma")  # about to change!
+from .constants import GITHUB_ACCESS_TOKEN, KUMA_REPO_NAME
 
 
-class CoreException(Exception):
-    """Exists for the benefit of making the cli easier to catch exceptions."""
-
-
-class SubmoduleFindingError(CoreException):
-    """when struggling to find the submodule."""
-
-
-class DirtyRepoError(CoreException):
-    """dirty repo, d'uh"""
-
-
-class MasterBranchError(CoreException):
-    """Not on the right branch"""
-
-
-def start_deployment(repo_location, config):
+def make_submodules_pr(repo_location, config):
     repo = git.Repo(repo_location)
     # Check if it's dirty
     if repo.is_dirty():
@@ -105,7 +87,7 @@ def start_deployment(repo_location, config):
 
         try:
             g = Github(GITHUB_ACCESS_TOKEN)
-            g_repo = g.get_repo("mozilla/kuma")
+            g_repo = g.get_repo(KUMA_REPO_NAME)
 
             # Would be cool if this could list the difference!
             body = "Updating the submodule! 😊\n"
