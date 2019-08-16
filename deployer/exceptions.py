@@ -12,3 +12,11 @@ class DirtyRepoError(CoreException):
 
 class MasterBranchError(CoreException):
     """Not on the right branch"""
+
+
+class PushBranchError(CoreException):
+    """struggling to find the branch"""
+
+
+class RemoteURLError(CoreException):
+    """when a remote's URL isn't awesome"""

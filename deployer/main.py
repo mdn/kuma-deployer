@@ -7,6 +7,7 @@ from .submodules import make_submodules_pr
 from .cleaner import start_cleaner
 from .localerefresh import start_localerefresh
 from .checker import check_builds
+from .push import stage_push
 from .utils import error, info
 from .exceptions import CoreException
 from .constants import (
@@ -29,10 +30,13 @@ def cli_wrap(fn):
     return inner
 
 
+# XXX This all feels clunky! Usefuly functionality but annoying to have to repeat
+# the names so much.
 make_submodules_pr = cli_wrap(make_submodules_pr)
 start_cleaner = cli_wrap(start_cleaner)
 start_localerefresh = cli_wrap(start_localerefresh)
 check_builds = cli_wrap(check_builds)
+stage_push = cli_wrap(stage_push)
 
 
 @click.group()
@@ -93,3 +97,9 @@ def l10n(ctx):
 @click.pass_context
 def checkbuilds(ctx):
     check_builds(ctx.obj["kumarepo"], ctx.obj)
+
+
+@cli.command()
+@click.pass_context
+def stagepush(ctx):
+    stage_push(ctx.obj["kumarepo"], ctx.obj)
