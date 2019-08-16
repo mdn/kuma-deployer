@@ -3,18 +3,18 @@ from pathlib import Path
 
 import click
 
-from .submodules import make_submodules_pr
-from .cleaner import start_cleaner
-from .localerefresh import start_localerefresh
 from .checker import check_builds
-from .push import stage_push
-from .utils import error, info
-from .exceptions import CoreException
+from .cleaner import start_cleaner
 from .constants import (
     DEFAULT_MASTER_BRANCH,
     DEFAULT_UPSTREAM_NAME,
     DEFAULT_YOUR_REMOTE_NAME,
 )
+from .exceptions import CoreException
+from .localerefresh import start_localerefresh
+from .push import prod_push, stage_push
+from .submodules import make_submodules_pr
+from .utils import error, info
 
 
 def cli_wrap(fn):
@@ -37,6 +37,7 @@ start_cleaner = cli_wrap(start_cleaner)
 start_localerefresh = cli_wrap(start_localerefresh)
 check_builds = cli_wrap(check_builds)
 stage_push = cli_wrap(stage_push)
+prod_push = cli_wrap(prod_push)
 
 
 @click.group()
@@ -103,3 +104,9 @@ def checkbuilds(ctx):
 @click.pass_context
 def stagepush(ctx):
     stage_push(ctx.obj["kumarepo"], ctx.obj)
+
+
+@cli.command()
+@click.pass_context
+def prodpush(ctx):
+    prod_push(ctx.obj["kumarepo"], ctx.obj)

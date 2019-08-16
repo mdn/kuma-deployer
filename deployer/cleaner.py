@@ -1,9 +1,9 @@
 import git
 from github import Github, GithubException
 
-from .utils import warning, info, success
 from .constants import GITHUB_ACCESS_TOKEN, KUMA_REPO_NAME
 from .exceptions import DirtyRepoError
+from .utils import info, success, warning
 
 
 def start_cleaner(repo_location, config):

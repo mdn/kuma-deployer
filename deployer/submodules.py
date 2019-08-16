@@ -3,9 +3,9 @@ import datetime
 import git
 from github import Github, GithubException
 
-from .exceptions import SubmoduleFindingError, DirtyRepoError, MasterBranchError
-from .utils import warning, info, success
 from .constants import GITHUB_ACCESS_TOKEN, KUMA_REPO_NAME
+from .exceptions import DirtyRepoError, MasterBranchError, SubmoduleFindingError
+from .utils import info, success, warning
 
 
 def make_submodules_pr(repo_location, config):

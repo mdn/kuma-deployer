@@ -1,13 +1,51 @@
+import shutil
 from urllib.parse import urlparse
 
 import git
 
+from .constants import (
+    PROD_PUSH_BRANCH,
+    STAGE_INTEGRATIONTEST_BRANCH,
+    STAGE_PUSH_BRANCH,
+    STANDBY_PUSH_BRANCH,
+)
 from .exceptions import DirtyRepoError, PushBranchError, RemoteURLError
-from .utils import info, success
-from .constants import STAGE_PUSH_BRANCH, STAGE_INTEGRATIONTEST_BRANCH
+from .utils import info, success, warning
+
+
+def center(msg):
+    t_width, _ = shutil.get_terminal_size(fallback=(80, 24))
+    warning(f"-----  {msg}  ".ljust(t_width, "-"))
 
 
 def stage_push(repo_location, config):
+    center(f"STAGE {STAGE_PUSH_BRANCH!r}")
+    push(repo_location, config, STAGE_PUSH_BRANCH)
+
+    print("\n")  # some deliberate whitespace
+    center(f"STAGE {STAGE_PUSH_BRANCH!r}")
+    push(repo_location, config, STAGE_INTEGRATIONTEST_BRANCH)
+    info(
+        "\nNow sit back and hold out for some sweat success of the integration tests."
+        # XXX This should be "#mdn-dev on Slack instead"! Ed?
+        "Check out #mdndev to for the joyous announcements."
+    )
+    info(
+        "\nYou can also check out the results by visiting:\n\t"
+        "https://ci.us-west-2.mdn.mozit.cloud/blue/organizations/jenkins/kuma/branches/"
+    )
+
+
+def prod_push(repo_location, config):
+    center(f"PROD {PROD_PUSH_BRANCH!r}")
+    push(repo_location, config, PROD_PUSH_BRANCH)
+
+    print("\n")  # some deliberate whitespace
+    center(f"PROD {STANDBY_PUSH_BRANCH!r}")
+    push(repo_location, config, STANDBY_PUSH_BRANCH)
+
+
+def push(repo_location, config, branch):
     repo = git.Repo(repo_location)
     # Check if it's dirty
     if repo.is_dirty():
@@ -17,11 +55,8 @@ def stage_push(repo_location, config):
         )
 
     # Kuma
-    _push(repo, config, STAGE_PUSH_BRANCH)
-    success(
-        f"Kuma: "
-        f"Latest {STAGE_PUSH_BRANCH} branch pushed to {config['upstream_name']}"
-    )
+    _push_repo(repo, config, branch)
+    success(f"Kuma: " f"Latest {branch!r} branch pushed to {config['upstream_name']!r}")
 
     # Kumascript
     ks_repo = repo.submodules["kumascript"].module()
@@ -37,35 +72,17 @@ def stage_push(repo_location, config):
                 f"\n\tcd kumascript\n"
                 f"\tgit remote set-url {config['upstream_name']} {better_url}\n"
             )
-    _push(ks_repo, config, STAGE_PUSH_BRANCH)
+    _push_repo(ks_repo, config, branch)
     success(
         f"Kumascript: "
-        f"Latest {STAGE_PUSH_BRANCH} branch pushed to {config['upstream_name']}"
+        f"Latest {branch!r} branch pushed to {config['upstream_name']!r}"
     )
 
     info("\nNow, check out: https://whatsdeployed.io/s/HC0/mozilla/kuma")
     info("And: https://whatsdeployed.io/s/SWJ/mdn/kumascript")
 
-    # Now do the 'stage-integration-tests' too for Kuma
-    _push(repo, config, STAGE_INTEGRATIONTEST_BRANCH)
-    success(
-        "Kumas: "
-        f"Latest {STAGE_INTEGRATIONTEST_BRANCH} branch "
-        f"pushed to {config['upstream_name']}"
-    )
 
-    info(
-        "\nNow sit back and hold out for some sweat success of the integration tests."
-        # XXX This should be "#mdn-dev on Slack instead"! Ed?
-        "Check out #mdndev to for the joyous announcements."
-    )
-    info(
-        "\nYou can also check out the results by visiting:\n\t"
-        "https://ci.us-west-2.mdn.mozit.cloud/blue/organizations/jenkins/kuma/branches/"
-    )
-
-
-def _push(repo, config, branch_name):
+def _push_repo(repo, config, branch_name):
     upstream_remote = repo.remotes[config["upstream_name"]]
     upstream_remote.fetch()
 
