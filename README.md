@@ -49,3 +49,11 @@ That should have installed the CLI `kuma-deployer`
     kuma-deployer --help
 
 If you wanna make a PR, make sure it's formatted with `black` and passes `flake8`.
+
+You can check that all files are `flake8` fine by running:
+
+    flake8 deployer
+
+And to check that all files are formatted according to `black` run:
+
+    black --check deployer
