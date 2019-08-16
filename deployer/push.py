@@ -40,6 +40,11 @@ def prod_push(repo_location, config):
     center(f"PROD {PROD_PUSH_BRANCH!r}")
     push(repo_location, config, PROD_PUSH_BRANCH)
 
+    info(
+        "\nAfter Whatsdeploy says it's up, go troll and lurk on:\n"
+        "\thttps://rpm.newrelic.com/accounts/1807330/applications/72968468/traced_errors\n"
+    )
+
     print("\n")  # some deliberate whitespace
     center(f"PROD {STANDBY_PUSH_BRANCH!r}")
     push(repo_location, config, STANDBY_PUSH_BRANCH)

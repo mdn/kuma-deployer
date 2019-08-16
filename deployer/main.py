@@ -84,7 +84,7 @@ def clean(ctx):
 
 @cli.command()
 @click.pass_context
-def submodule(ctx):
+def submodules(ctx):
     make_submodules_pr(ctx.obj["kumarepo"], ctx.obj)
 
 
