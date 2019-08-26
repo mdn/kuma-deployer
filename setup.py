@@ -5,7 +5,7 @@ from setuptools import find_packages, setup
 _here = path.dirname(__file__)
 
 
-dev_requirements = ["black==19.3b0", "flake8==3.7.8"]  # "flake8-import-order==0.18.1"
+dev_requirements = ["black==19.3b0", "flake8==3.7.8", "therapist"]
 
 setup(
     name="kuma-deployer",

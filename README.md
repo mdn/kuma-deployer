@@ -57,3 +57,22 @@ You can check that all files are `flake8` fine by running:
 And to check that all files are formatted according to `black` run:
 
     black --check deployer
+
+All of the code style stuff can be simplified by installing `therapist`. It should
+get installed by default, but setting it up as a `git` `pre-commit` hook is optional.
+Here's how you set it up once:
+
+    therapist install
+
+Now, next time you try to commit a `.py` file with a `black` or `flake8` violation
+it will remind you and block the commit. You can override it like this:
+
+    git commit -a -m "I know what I'm doing"
+
+To run _all_ code style and lint checkers you can also use `therapist` with:
+
+    therapist run --use-tracked-files
+
+Some things can't be automatically fixed, but `black` violations can for example:
+
+    therapist run --use-tracked-files --fix
