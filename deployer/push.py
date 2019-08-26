@@ -23,8 +23,8 @@ def stage_push(repo_location, config):
     push(repo_location, config, STAGE_PUSH_BRANCH)
 
     print("\n")  # some deliberate whitespace
-    center(f"STAGE {STAGE_PUSH_BRANCH!r}")
-    push(repo_location, config, STAGE_INTEGRATIONTEST_BRANCH)
+    center(f"STAGE {STAGE_INTEGRATIONTEST_BRANCH!r}")
+    push(repo_location, config, STAGE_INTEGRATIONTEST_BRANCH, show_whatsdeployed=False)
     info(
         "\nNow sit back and hold out for some sweat success of the integration tests."
         # XXX This should be "#mdn-dev on Slack instead"! Ed?
@@ -50,7 +50,7 @@ def prod_push(repo_location, config):
     push(repo_location, config, STANDBY_PUSH_BRANCH)
 
 
-def push(repo_location, config, branch):
+def push(repo_location, config, branch, show_whatsdeployed=True):
     repo = git.Repo(repo_location)
     # Check if it's dirty
     if repo.is_dirty():
@@ -82,9 +82,9 @@ def push(repo_location, config, branch):
         f"Kumascript: "
         f"Latest {branch!r} branch pushed to {config['upstream_name']!r}"
     )
-
-    info("\nNow, check out: https://whatsdeployed.io/s/HC0/mozilla/kuma")
-    info("And: https://whatsdeployed.io/s/SWJ/mdn/kumascript")
+    if show_whatsdeployed:
+        info("\nNow, check out: https://whatsdeployed.io/s/HC0/mozilla/kuma")
+        info("And: https://whatsdeployed.io/s/SWJ/mdn/kumascript")
 
 
 def _push_repo(repo, config, branch_name):
