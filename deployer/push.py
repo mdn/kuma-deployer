@@ -1,4 +1,5 @@
 import shutil
+import time
 from urllib.parse import urlparse
 
 import git
@@ -10,7 +11,7 @@ from .constants import (
     STANDBY_PUSH_BRANCH,
 )
 from .exceptions import DirtyRepoError, PushBranchError, RemoteURLError
-from .utils import info, success, warning
+from .utils import info, success, warning, requests_retry_session
 
 
 def center(msg):
@@ -35,22 +36,29 @@ def stage_push(repo_location, config):
         "https://ci.us-west-2.mdn.mozit.cloud/blue/organizations/jenkins/kuma/branches/"
     )
 
+    print("\n")  # deliberate whitespace
+    start_watching_for_change("https://developer.allizom.org/media/revision.txt")
+
 
 def prod_push(repo_location, config):
     center(f"PROD {PROD_PUSH_BRANCH!r}")
     push(repo_location, config, PROD_PUSH_BRANCH)
 
     info(
-        "\nAfter Whatsdeploy says it's up, go troll and lurk on:\n"
-        "\thttps://rpm.newrelic.com/accounts/1807330/applications/72968468/traced_errors\n"
+        "\nAfter Whatsdeploy says it's up, go troll and lurk on:\n\t"
+        "https://rpm.newrelic.com/accounts/1807330/applications/"
+        "72968468/traced_errors\n"
     )
 
     print("\n")  # some deliberate whitespace
     center(f"PROD {STANDBY_PUSH_BRANCH!r}")
     push(repo_location, config, STANDBY_PUSH_BRANCH)
 
+    print("\n")  # deliberate whitespace
+    start_watching_for_change("https://developer.mozilla.org/media/revision.txt")
 
-def push(repo_location, config, branch, show_whatsdeployed=True):
+
+def push(repo_location, config, branch, show_whatsdeployed=True, show_jenkins=True):
     repo = git.Repo(repo_location)
     # Check if it's dirty
     if repo.is_dirty():
@@ -60,8 +68,22 @@ def push(repo_location, config, branch, show_whatsdeployed=True):
         )
 
     # Kuma
-    _push_repo(repo, config, branch)
-    success(f"Kuma: " f"Latest {branch!r} branch pushed to {config['upstream_name']!r}")
+    short_sha = _push_repo(repo, config, branch)
+    success(
+        f"Kuma: " f"Latest {branch!r} branch pushed to {config['upstream_name']!r}\n"
+    )
+    if show_jenkins:
+        sha = repo.head.object.hexsha
+        short_sha = repo.git.rev_parse(sha, short=7)
+        jenkins_url = (
+            f"https://ci.us-west-2.mdn.mozit.cloud/blue/organizations/jenkins/"
+            f"kuma/activity?branch={branch}"
+        )
+        info(f"Now, look for {short_sha} in\n\t{jenkins_url}")
+    if show_whatsdeployed:
+        info("Keep an eye on\n\thttps://whatsdeployed.io/s/HC0/mozilla/kuma")
+
+    print("\n")  # Some whitespace before Kumascript
 
     # Kumascript
     ks_repo = repo.submodules["kumascript"].module()
@@ -77,14 +99,19 @@ def push(repo_location, config, branch, show_whatsdeployed=True):
                 f"\n\tcd kumascript\n"
                 f"\tgit remote set-url {config['upstream_name']} {better_url}\n"
             )
-    _push_repo(ks_repo, config, branch)
+    short_sha = _push_repo(ks_repo, config, branch)
     success(
         f"Kumascript: "
         f"Latest {branch!r} branch pushed to {config['upstream_name']!r}"
     )
+    if show_jenkins:
+        jenkins_url = (
+            f"https://ci.us-west-2.mdn.mozit.cloud/blue/organizations/jenkins/"
+            f"kumascript/activity?branch={branch}"
+        )
+        info(f"Now, look for {short_sha} in\n\t{jenkins_url}")
     if show_whatsdeployed:
-        info("\nNow, check out: https://whatsdeployed.io/s/HC0/mozilla/kuma")
-        info("And: https://whatsdeployed.io/s/SWJ/mdn/kumascript")
+        info("Keep an eye on\n\thttps://whatsdeployed.io/s/SWJ/mdn/kumascript")
 
 
 def _push_repo(repo, config, branch_name):
@@ -109,7 +136,46 @@ def _push_repo(repo, config, branch_name):
     # Merge the origin master branch into this
     origin_master_branch = f"{config['upstream_name']}/{config['master_branch']}"
     repo.git.merge(origin_master_branch)
+    sha = repo.head.object.hexsha
+    short_sha = repo.git.rev_parse(sha, short=7)
     repo.git.push(config["upstream_name"], branch_name)
 
     # Back to master branch
     repo.heads[config["master_branch"]].checkout()
+
+    return short_sha
+
+
+def start_watching_for_change(url, sleep_seconds=10):
+    session = requests_retry_session()
+    response = session.get(url)
+    response.raise_for_status()
+
+    def fmt_seconds(delta):
+        seconds = int(delta)
+        if seconds > 60:
+            minutes = seconds // 60
+            seconds = seconds % 60
+            return (
+                f"{minutes} minute{'s' if minutes > 1 else ''} "
+                f"{seconds} second{'s' if seconds > 1 else ''} "
+            )
+        return f"{seconds} second{'s' if seconds > 1 else ''} "
+
+    t0 = time.time()
+    first_content = response.text
+    info(f"Watching for changes to output from {url}")
+    print(f"(checking every {sleep_seconds} seconds)")
+    while True:
+        time.sleep(10)
+
+        response = session.get(url)
+        response.raise_for_status()
+        new_content = response.text
+        if new_content != first_content:
+            success(f"Output from {url} has changed!\n")
+            info(f"from {first_content!r} to {new_content!r}")
+            info("Stopping the watcher. Bye!")
+            break
+        else:
+            print(f"Been checking for {fmt_seconds(time.time() - t0)}")
