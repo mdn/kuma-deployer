@@ -74,10 +74,12 @@ def make_submodules_pr(repo_location, config):
     # actual_updates = {"kumascript": ["b70bab1", "9c29f10"]}
 
     if actual_updates:
-        msg = f"Update submodule{'s' if len(actual_updates) > 1 else ''} "
+        msg = f"Submodule{'s' if len(actual_updates) > 1 else ''}:"
         for name in sorted(actual_updates):
+            if not msg.endswith(":"):
+                msg += ", "
             shas = actual_updates[name]
-            msg += f"{name} ({shas[0]} to {shas[1]}) "
+            msg += f" {name} {shas[0]}...{shas[1]}"
         msg = msg.strip()
         info("About to commit with this message:", msg)
         repo.git.add(A=True)
@@ -105,3 +107,14 @@ def make_submodules_pr(repo_location, config):
                 f"{config['your_remote_name']}:{branch_name}?expand=1"
             )
             success(f"\n\t{create_pr_url}\n")
+
+        # Back to master branch
+        repo.heads[config["master_branch"]].checkout()
+
+        print("\n")
+        info(
+            f"After the PR has been merged, the branch {branch_name!r} can be removed:"
+        )
+        success(f"\n\tgit branch -d {branch_name}")
+        info("\n\t# optional, if you didn't already delete the remote branch...")
+        success(f"\n\tgit push {config['your_remote_name']} :{branch_name}\n")
