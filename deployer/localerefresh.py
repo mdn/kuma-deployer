@@ -3,9 +3,10 @@ import subprocess
 import sys
 import time
 
+import click
 import git
 
-from .utils import info, success, warning
+from .utils import info, success
 
 
 def run_command(command):
@@ -23,10 +24,6 @@ def run_command(command):
 def start_localerefresh(repo_location, config):
     repo = git.Repo(repo_location)
     cmd = "docker-compose exec web make localerefresh"
-    # process = subprocess.Popen(
-    #     shlex.split(cmd), stdout=subprocess.PIPE, cwd=repo_location
-    # )
-    # import sys
 
     filename = "localerefresh.log"
     info(f"Hold my 🍺 whilst I run {cmd!r} (logging in {filename} too)")
@@ -48,7 +45,31 @@ def start_localerefresh(repo_location, config):
         f"Only took {seconds % 3600 // 60} minutes, {seconds % 60} seconds."
     )
 
-    locale_submodule = repo.submodules["locale"]
+    new_msgids = set()
+    total_diff_files = 0
+    total_diff_lines = 0
+    locale_repo = repo.submodules["locale"].module()
+    for diff in locale_repo.index.diff(None, create_patch=True):
+        total_diff_files += 1
+        for line in diff.diff.splitlines():
+            total_diff_lines += 1
+            if line.startswith(b"+msgid") and line != b'+msgid ""':
+                new_msgids.add(line)
+
+    info(f"{total_diff_files:,} files and {total_diff_lines:,} lines in the diff")
+
+    if new_msgids:
+        info(f"There are {len(new_msgids)} new '+msgid' strings.")
+        if click.confirm("Wanna see a list of these new additions?", default=True):
+            for line in new_msgids:
+                info(f"\t{line.decode('utf-8')}")
+    print("")  # Some whitespace
+    if not click.confirm(
+        "Do you want to proceed and commit this diff?", default=bool(new_msgids)
+    ):
+        info("Fine! Be like that!")
+        return
+
     # XXX WORK HARDER
-    print(repr(locale_submodule))
+    print(repr(locale_repo))
     raise NotImplementedError("not done!")
