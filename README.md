@@ -33,6 +33,10 @@ If you don't use a `.env` file you can use:
 
     GITHUB_ACCESS_TOKEN=a36f6736... kuma-deployer --help
 
+NOTE! The `.env` file (with the `GITHUB_ACCESS_TOKEN`) needs to be in the
+_current working directory_. I.e. where you are when you run `kuma-deployer`. So
+not necessarily where your `kuma` directory is (if these two are different).
+
 ## Goal
 
 The goal is that you simply install this script and type `kuma-deploy` and sit

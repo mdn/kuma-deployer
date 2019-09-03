@@ -1,6 +1,9 @@
 import getpass
+import os
 
-from decouple import config
+from decouple import AutoConfig
+
+config = AutoConfig(os.curdir)
 
 
 def _current_user():
