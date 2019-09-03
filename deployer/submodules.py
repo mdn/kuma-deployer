@@ -92,7 +92,9 @@ def make_submodules_pr(repo_location, config):
             g_repo = g.get_repo(KUMA_REPO_NAME)
 
             # Would be cool if this could list the difference!
-            body = "Updating the submodule! 😊\n"
+            body = (
+                f"Updating the submodule{'s' if len(actual_updates) > 1 else ''}! 😊\n"
+            )
 
             created_pr = g_repo.create_pull(msg, body, "master", head_name)
             success(f"Now go and patiently wait for {created_pr.html_url} to go green.")
