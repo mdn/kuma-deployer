@@ -14,6 +14,7 @@ from .exceptions import CoreException
 from .localerefresh import start_localerefresh
 from .push import prod_push, stage_push
 from .submodules import make_submodules_pr
+from .selfish import self_check
 from .utils import error, info
 
 
@@ -38,6 +39,7 @@ start_localerefresh = cli_wrap(start_localerefresh)
 check_builds = cli_wrap(check_builds)
 stage_push = cli_wrap(stage_push)
 prod_push = cli_wrap(prod_push)
+self_check = cli_wrap(self_check)
 
 
 @click.group()
@@ -110,3 +112,9 @@ def stagepush(ctx):
 @click.pass_context
 def prodpush(ctx):
     prod_push(ctx.obj["kumarepo"], ctx.obj)
+
+
+@cli.command()
+@click.pass_context
+def selfcheck(ctx):
+    self_check(ctx.obj["kumarepo"], ctx.obj)
