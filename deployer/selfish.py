@@ -22,7 +22,7 @@ def self_check(repo_location, config):
         sub_repo = submodule.module()
         if sub_repo.is_dirty():
             raise DirtyRepoError(f"The git submodule {submodule!r} is dirty.")
-        success(f"Git submodule {submodule!r} is not dirty.")
+        success(f"Git submodule {submodule.name!r} is not dirty.")
 
     g = Github(GITHUB_ACCESS_TOKEN)
     g_repo = g.get_repo(KUMA_REPO_NAME)
