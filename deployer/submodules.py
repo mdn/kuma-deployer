@@ -86,6 +86,7 @@ def make_submodules_pr(repo_location, config):
         pushed = repo.git.push(config["your_remote_name"], branch_name)
         print("PUSHED:", repr(pushed))
 
+        head_name = f"{config['your_remote_name']}:{branch_name}"
         try:
             g = Github(GITHUB_ACCESS_TOKEN)
             g_repo = g.get_repo(KUMA_REPO_NAME)
@@ -93,8 +94,7 @@ def make_submodules_pr(repo_location, config):
             # Would be cool if this could list the difference!
             body = "Updating the submodule! 😊\n"
 
-            created_pr = g_repo.create_pull(msg, body, "master", branch_name)
-            # print(created_pr.html_url)
+            created_pr = g_repo.create_pull(msg, body, "master", head_name)
             success(f"Now go and patiently wait for {created_pr.html_url} to go green.")
 
         except GithubException as exception:
