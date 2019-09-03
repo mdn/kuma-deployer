@@ -47,6 +47,7 @@ def make_submodules_pr(repo_location, config):
 
     # Check out all the latest and greatest submodules
     actual_updates = {}
+    upstream_name = config.get("submodules_upstream_name") or config["upstream_name"]
     for submodule in repo.submodules:
         submodule.update(init=True)
         sub_repo = submodule.module()
@@ -54,12 +55,10 @@ def make_submodules_pr(repo_location, config):
         sha = sub_repo.head.object.hexsha
         short_sha = sub_repo.git.rev_parse(sha, short=7)
         for remote in sub_repo.remotes:
-            if remote.name == config["upstream_name"]:
+            if remote.name == upstream_name:
                 break
         else:
-            raise SubmoduleFindingError(
-                f"Can't find origin {config['upstream_name']!r}"
-            )
+            raise SubmoduleFindingError(f"Can't find origin {upstream_name!r}")
         remote.pull(config["master_branch"])
 
         sha2 = sub_repo.head.object.hexsha

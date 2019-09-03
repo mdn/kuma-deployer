@@ -9,6 +9,7 @@ from .cleaner import start_cleaner
 from .constants import (
     DEFAULT_MASTER_BRANCH,
     DEFAULT_UPSTREAM_NAME,
+    DEFAULT_SUBMODULES_UPSTREAM_NAME,
     DEFAULT_YOUR_REMOTE_NAME,
 )
 from .exceptions import CoreException
@@ -55,6 +56,14 @@ self_check = cli_wrap(self_check)
     help=f"name of upstream remote (default {DEFAULT_UPSTREAM_NAME!r})",
 )
 @click.option(
+    "--submodules-upstream-name",
+    default=DEFAULT_SUBMODULES_UPSTREAM_NAME,
+    help=(
+        f"name of upstream remote in submodules "
+        f"(default {DEFAULT_SUBMODULES_UPSTREAM_NAME!r})"
+    ),
+)
+@click.option(
     "--your-remote-name",
     default=DEFAULT_YOUR_REMOTE_NAME,
     help=f"Name of your remote (default {DEFAULT_YOUR_REMOTE_NAME!r})",
@@ -62,12 +71,21 @@ self_check = cli_wrap(self_check)
 @click.option("--debug/--no-debug", default=False)
 @click.argument("kumarepo")
 @click.pass_context
-def cli(ctx, kumarepo, debug, master_branch, upstream_name, your_remote_name):
+def cli(
+    ctx,
+    kumarepo,
+    debug,
+    master_branch,
+    upstream_name,
+    submodules_upstream_name,
+    your_remote_name,
+):
     ctx.ensure_object(dict)
     ctx.obj["kumarepo"] = kumarepo
     ctx.obj["debug"] = debug
     ctx.obj["master_branch"] = master_branch
     ctx.obj["upstream_name"] = upstream_name
+    ctx.obj["submodules_upstream_name"] = submodules_upstream_name
     ctx.obj["your_remote_name"] = your_remote_name
 
     p = Path(kumarepo)
