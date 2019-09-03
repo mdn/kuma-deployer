@@ -2,6 +2,7 @@ import shutil
 import time
 from urllib.parse import urlparse
 
+import click
 import git
 
 from .constants import (
@@ -10,7 +11,12 @@ from .constants import (
     STAGE_PUSH_BRANCH,
     STANDBY_PUSH_BRANCH,
 )
-from .exceptions import DirtyRepoError, PushBranchError, RemoteURLError
+from .exceptions import (
+    DirtyRepoError,
+    PushBranchError,
+    RemoteURLError,
+    MasterBranchError,
+)
 from .utils import info, success, warning, requests_retry_session
 
 
@@ -66,6 +72,42 @@ def push(repo_location, config, branch, show_whatsdeployed=True, show_jenkins=Tr
             'The repo is currently "dirty". Stash or commit away.\n'
             f"Run `git status` inside {repo_location} to see what's up."
         )
+
+    # Are you on the "master" branch?
+    active_branch = repo.active_branch
+    if active_branch.name == config["master_branch"]:
+        # Need to check that it's up to date.
+        # But before that can be done we need to git fetch origin.
+        upstream_remote = repo.remotes[config["upstream_name"]]
+        info(f"Fetching all branches from {config['upstream_name']}")
+        upstream_remote.fetch()
+        remote_master_branch = f"{config['upstream_name']}/{config['master_branch']}"
+        diff = repo.git.diff(remote_master_branch)
+        if diff:
+            warning(
+                f"Your local {config['master_branch']} is different from "
+                f"{remote_master_branch!r}."
+            )
+            if click.confirm(
+                f"Want to pull latest {remote_master_branch!r}", default=True
+            ):
+                upstream_remote.pull(config["master_branch"])
+                info(
+                    f"Pulled latest {config['master_branch']} from "
+                    f"{config['upstream_name']}."
+                )
+            else:
+                warning("Godspeed!")
+    else:
+        msg = (
+            f"You're not on the {config['master_branch']!r} branch. "
+            f"You're on {active_branch.name!r}."
+        )
+        warning(msg)
+        if not click.confirm("Are you sure you want to proceed?"):
+            raise MasterBranchError(
+                f"Bailing because not in {config['master_branch']!r}"
+            )
 
     # Kuma
     short_sha = _push_repo(repo, config, branch)
