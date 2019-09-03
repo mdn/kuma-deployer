@@ -68,6 +68,8 @@ def start_localerefresh(repo_location, config):
         "Do you want to proceed and commit this diff?", default=bool(new_msgids)
     ):
         info("Fine! Be like that!")
+        info("To reset all changes to the submodules run:")
+        info("\tgit submodule foreach git reset --hard")
         return
 
     # XXX WORK HARDER
