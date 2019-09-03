@@ -27,9 +27,9 @@ def stage_push(repo_location, config):
     center(f"STAGE {STAGE_INTEGRATIONTEST_BRANCH!r}")
     push(repo_location, config, STAGE_INTEGRATIONTEST_BRANCH, show_whatsdeployed=False)
     info(
-        "\nNow sit back and hold out for some sweat success of the integration tests."
-        # XXX This should be "#mdn-dev on Slack instead"! Ed?
-        "Check out #mdndev to for the joyous announcements."
+        "\nNow sit back and hold out for some sweat success of the integration tests. "
+        "Check out #mdn-infra, on Slack, to for the joyous announcements. \n"
+        "https://mozilla.slack.com/messages/CAVQJ18E6"
     )
     info(
         "\nYou can also check out the results by visiting:\n\t"

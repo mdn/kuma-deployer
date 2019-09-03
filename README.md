@@ -9,13 +9,15 @@ Everything that can be automated in the Kuma deploy process is scripted here.
 
 ## Limitations and caveats
 
-At the time of writing, **this is a prototype**. It's doing the least possible
-to make the most basic thing work.
+**Hopefully, all temporary limitations and caveats.**
 
-- start
-- writing
-- them
-- here
+There are some things that are hard to do such as pulling information out of Jenkins
+since it requires authentication and VPN.
+
+The other thing is that all the current commands are independent and users need to
+know which order to run them. Ideally, it should all be wrapped up into one single
+command but that's a little bit tricky since it requires waiting and external
+checking.
 
 ## Getting started
 
