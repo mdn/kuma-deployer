@@ -76,3 +76,15 @@ To run _all_ code style and lint checkers you can also use `therapist` with:
 Some things can't be automatically fixed, but `black` violations can for example:
 
     therapist run --use-tracked-files --fix
+
+## Contributing and using
+
+If you like to use the globally installed executable `kuma-deployer` but don't want
+to depend on a new PyPI release for every change you want to try, use this:
+
+    # If you use a virtualenv, deactivate it first
+    deactive
+    # Use the global pip (or pip3) on your system
+    pip3 install -e .
+
+If you do this, you can use this repo to install in your system.

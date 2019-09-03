@@ -1,4 +1,5 @@
 import functools
+import pkg_resources
 from pathlib import Path
 
 import click
@@ -31,7 +32,7 @@ def cli_wrap(fn):
     return inner
 
 
-# XXX This all feels clunky! Usefuly functionality but annoying to have to repeat
+# XXX This all feels clunky! Useful functionality but annoying to have to repeat
 # the names so much.
 make_submodules_pr = cli_wrap(make_submodules_pr)
 start_cleaner = cli_wrap(start_cleaner)
@@ -118,3 +119,9 @@ def prodpush(ctx):
 @click.pass_context
 def selfcheck(ctx):
     self_check(ctx.obj["kumarepo"], ctx.obj)
+
+
+@cli.command()
+@click.pass_context
+def version(ctx):
+    info(pkg_resources.get_distribution("kuma-deployer").version)
