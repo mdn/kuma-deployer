@@ -9,7 +9,7 @@ dev_requirements = ["black==19.3b0", "flake8==3.7.8", "therapist"]
 
 setup(
     name="kuma-deployer",
-    version="0.2.2",
+    version="0.2.3",
     author="Peter Bengtsson",
     author_email="mail@peterbe.com",
     url="https://github.com/mdn/kuma-deployer",
