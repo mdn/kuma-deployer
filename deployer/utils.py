@@ -58,3 +58,32 @@ def requests_retry_session(
     session.mount("http://", adapter)
     session.mount("https://", adapter)
     return session
+
+
+def _humanize_time(amount, units):
+    """Chopped and changed from http://stackoverflow.com/a/6574789/205832"""
+    intervals = (1, 60, 60 * 60, 60 * 60 * 24, 604800, 2419200, 29030400)
+    names = (
+        ("second", "seconds"),
+        ("minute", "minutes"),
+        ("hour", "hours"),
+        ("day", "days"),
+        ("week", "weeks"),
+        ("month", "months"),
+        ("year", "years"),
+    )
+
+    result = []
+    unit = [x[1] for x in names].index(units)
+    # Convert to seconds
+    amount = amount * intervals[unit]
+    for i in range(len(names) - 1, -1, -1):
+        a = int(amount) // intervals[i]
+        if a > 0:
+            result.append((a, names[i][1 % a]))
+            amount -= a * intervals[i]
+    return result
+
+
+def humanize_seconds(seconds):
+    return "{} {}".format(*_humanize_time(seconds, "seconds")[0])

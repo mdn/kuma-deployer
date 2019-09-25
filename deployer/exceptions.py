@@ -20,3 +20,7 @@ class PushBranchError(CoreException):
 
 class RemoteURLError(CoreException):
     """when a remote's URL isn't awesome"""
+
+
+class PuenteVersionError(CoreException):
+    """when something's wrong trying to figure out the next puente version"""

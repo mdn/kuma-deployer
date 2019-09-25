@@ -8,10 +8,12 @@ from .exceptions import DirtyRepoError, MasterBranchError, SubmoduleFindingError
 from .utils import info, success, warning
 
 
-def make_submodules_pr(repo_location, config):
+def make_submodules_pr(
+    repo_location, config, accept_dirty=False, branch_name=None, only_submodules=None
+):
     repo = git.Repo(repo_location)
     # Check if it's dirty
-    if repo.is_dirty():
+    if repo.is_dirty() and not accept_dirty:
         raise DirtyRepoError(
             'The repo is currently "dirty". Stash or commit away.\n'
             f"Run `git status` inside {repo_location} to see what's up."
@@ -28,7 +30,7 @@ def make_submodules_pr(repo_location, config):
         )
 
     now = datetime.datetime.utcnow()
-    branch_name = f"pre-push-{now.strftime('%Y-%m-%d')}"
+    branch_name = branch_name or f"pre-push-{now.strftime('%Y-%m-%d')}"
 
     # Come up with a pre-push branch name
     # existing_branch_names = [x.name for x in repo.heads]
@@ -48,8 +50,11 @@ def make_submodules_pr(repo_location, config):
     # Check out all the latest and greatest submodules
     actual_updates = {}
     for submodule in repo.submodules:
-        submodule.update(init=True)
+        if only_submodules and submodule.name not in only_submodules:
+            continue
+
         sub_repo = submodule.module()
+        submodule.update(init=True)
         sub_repo.git.checkout(config["master_branch"])
         sha = sub_repo.head.object.hexsha
         short_sha = sub_repo.git.rev_parse(sha, short=7)

@@ -36,7 +36,7 @@ def cli_wrap(fn):
 # the names so much.
 make_submodules_pr = cli_wrap(make_submodules_pr)
 start_cleaner = cli_wrap(start_cleaner)
-start_localerefresh = cli_wrap(start_localerefresh)
+# start_localerefresh = cli_wrap(start_localerefresh)
 check_builds = cli_wrap(check_builds)
 stage_push = cli_wrap(stage_push)
 prod_push = cli_wrap(prod_push)
@@ -93,6 +93,7 @@ def submodules(ctx):
 
 @cli.command()
 @click.pass_context
+@cli_wrap
 def l10n(ctx):
     start_localerefresh(ctx.obj["kumarepo"], ctx.obj)
 
